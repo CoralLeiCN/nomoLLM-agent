@@ -1,6 +1,12 @@
 # nomoLLM-agent
 
-
+# How to run 
+```bash
+uv run app.py
+# Or Automatically reloads the Gradio app
+uv run gradio app.py
+```
+# Workflow Overview
 ```mermaid
 graph TD
     A[User Input] --> B{LLM Decides Next Step};

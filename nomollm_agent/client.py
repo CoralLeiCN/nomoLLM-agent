@@ -28,6 +28,12 @@ def chat_with_mistral(messages, model="mistral-medium-latest", **kwargs):
     return response
 
 
+def get_completion(prompt):
+    messages = [{"role": "user", "content": prompt}]
+    response = chat_with_mistral(messages)
+    return response.choices[0].message.content
+
+
 # Example usage function
 def example_chat():
     messages = [{"role": "user", "content": "Hello! How are you today?"}]
