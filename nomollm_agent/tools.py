@@ -2,7 +2,7 @@ import inspect
 import functools
 
 
-def extract_function_info(func):
+def tool(func):
     """
     A decorator that inspects a function and creates a JSON schema representation for it.
     """
@@ -50,7 +50,7 @@ def extract_function_info(func):
     return wrapper
 
 
-@extract_function_info
+@tool
 def add(a: int, b: int) -> int:
     """Adds a and b."""
     return a + b
