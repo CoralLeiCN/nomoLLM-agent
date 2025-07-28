@@ -1,6 +1,7 @@
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
+from nomollm_agent.prompt.prompts import system_prompt
 
 load_dotenv()
 
@@ -24,6 +25,10 @@ def chat_with_mistral(messages, model="mistral-medium-latest", **kwargs):
     Returns:
         OpenAI ChatCompletion response object
     """
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": messages},
+    ]
     response = client.chat.completions.create(model=model, messages=messages, **kwargs)
     return response
 
