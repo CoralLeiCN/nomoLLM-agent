@@ -27,9 +27,9 @@ def tool(func):
         if param.default is inspect.Parameter.empty:
             required.append(name)
 
-    tool_spec = [
-        {
-            "type": "function",
+    tool_spec = {
+        "type": "function",
+        "function": {
             "name": func_name,
             "description": description,
             "parameters": {
@@ -39,8 +39,8 @@ def tool(func):
                 "additionalProperties": False,
             },
             "strict": True,
-        }
-    ]
+        },
+    }
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -52,5 +52,14 @@ def tool(func):
 
 @tool
 def add(a: int, b: int) -> int:
-    """Adds a and b."""
+    """
+    Adds two integers together.
+
+    Args:
+        a (int): The first integer to add.
+        b (int): The second integer to add.
+
+    Returns:
+        int: The sum of a and b.
+    """
     return a + b
