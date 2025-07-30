@@ -2,6 +2,8 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 from nomollm_agent.prompt.prompts import system_prompt
+import json
+from nomollm_agent.tools import add
 
 load_dotenv()
 
@@ -13,7 +15,7 @@ client = OpenAI(
 )
 
 
-def chat_with_mistral(messages, model="mistral-medium-latest", **kwargs):
+def chat_with_mistral(messages, tools, model="mistral-medium-latest", **kwargs):
     """
     Send a chat completion request to Mistral AI using the OpenAI client interface.
 
@@ -29,8 +31,30 @@ def chat_with_mistral(messages, model="mistral-medium-latest", **kwargs):
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": messages},
     ]
-    response = client.chat.completions.create(model=model, messages=messages, **kwargs)
-    return response
+    completion = client.chat.completions.create(
+        model=model, messages=messages, tools=tools, **kwargs
+    )
+    tool_call = completion.choices[0].message.tool_calls[0]
+    args = json.loads(tool_call.function.arguments)
+    result = add(args["a"], args["b"])
+    messages.append(
+        completion.choices[0].message
+    )  # append model's function call message
+
+    messages.append(
+        {  # append result message
+            "role": "tool",
+            "tool_call_id": tool_call.id,
+            "content": str(result),
+        }
+    )
+    completion = client.chat.completions.create(
+        model=model,
+        messages=messages,
+        tools=tools,
+    )
+
+    return completion
 
 
 def get_completion(prompt):
