@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from nomollm_agent.prompt.prompts import system_prompt
 import json
-from nomollm_agent.tools import add
+from nomollm_agent.tools import call_function
 
 load_dotenv()
 
@@ -34,20 +34,30 @@ def chat_with_mistral(messages, tools, model="mistral-medium-latest", **kwargs):
     completion = client.chat.completions.create(
         model=model, messages=messages, tools=tools, **kwargs
     )
-    tool_call = completion.choices[0].message.tool_calls[0]
-    args = json.loads(tool_call.function.arguments)
-    result = add(args["a"], args["b"])
-    messages.append(
-        completion.choices[0].message
-    )  # append model's function call message
 
-    messages.append(
-        {  # append result message
-            "role": "tool",
-            "tool_call_id": tool_call.id,
-            "content": str(result),
-        }
-    )
+    # if function calls are present, execute them
+    if completion.choices[0].message.tool_calls:
+        messages.append(
+            completion.choices[0].message
+        )  # append model's function call message
+
+        print(len(completion.choices[0].message.tool_calls), "tool calls found")
+        for tool_call in completion.choices[0].message.tool_calls:
+            name = tool_call.function.name
+            args = json.loads(tool_call.function.arguments)
+            print(f"Calling function: {name} with args: {args}")
+            result = call_function(name, args)
+
+            messages.append(
+                {  # append result message
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": str(result),
+                }
+            )
+    else:
+        print("No tool calls found")
+        return completion
     completion = client.chat.completions.create(
         model=model,
         messages=messages,

@@ -1,5 +1,7 @@
-import inspect
 import functools
+import inspect
+
+import requests
 
 
 def tool(func):
@@ -51,6 +53,24 @@ def tool(func):
 
 
 @tool
+def get_weather(latitude: float, longitude: float) -> float:
+    """
+    "Get current temperature for provided coordinates in celsius.",
+
+    Args:
+        latitude (float): The latitude of the location.
+        longitude (float): The longitude of the location.
+    Returns:
+        float: The current temperature in Celsius.
+    """
+    response = requests.get(
+        f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
+    )
+    data = response.json()
+    return data["current"]["temperature_2m"]
+
+
+@tool
 def add(a: int, b: int) -> int:
     """
     Adds two integers together.
@@ -63,3 +83,10 @@ def add(a: int, b: int) -> int:
         int: The sum of a and b.
     """
     return a + b
+
+
+def call_function(name, args):
+    if name == "get_weather":
+        return get_weather(**args)
+    if name == "add":
+        return add(**args)
