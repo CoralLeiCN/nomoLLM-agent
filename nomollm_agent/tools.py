@@ -3,6 +3,9 @@ import inspect
 
 import requests
 
+# Global registry to store available tools
+TOOL_REGISTRY = {}
+
 
 def tool(func):
     """
@@ -43,6 +46,7 @@ def tool(func):
             "strict": True,
         },
     }
+    TOOL_REGISTRY[func_name] = func
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -86,7 +90,6 @@ def add(a: int, b: int) -> int:
 
 
 def call_function(name, args):
-    if name == "get_weather":
-        return get_weather(**args)
-    if name == "add":
-        return add(**args)
+    if name in TOOL_REGISTRY:
+        print(f"Find function {name} in TOOL_REGISTRY")
+        return TOOL_REGISTRY[name](**args)

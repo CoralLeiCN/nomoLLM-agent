@@ -21,6 +21,7 @@ def chat_with_mistral(messages, tools, model="mistral-medium-latest", **kwargs):
 
     Args:
         messages: List of message dictionaries with 'role' and 'content' keys
+        tools: List of tool specifications to be used in the chat
         model: Mistral model to use (e.g., "mistral-small-latest", "mistral-medium-latest", "mistral-large-latest")
         **kwargs: Additional parameters like temperature, max_tokens, etc.
 
@@ -47,6 +48,7 @@ def chat_with_mistral(messages, tools, model="mistral-medium-latest", **kwargs):
             args = json.loads(tool_call.function.arguments)
             print(f"Calling function: {name} with args: {args}")
             result = call_function(name, args)
+            print(f"Function {name} returned: {result}")
 
             messages.append(
                 {  # append result message
