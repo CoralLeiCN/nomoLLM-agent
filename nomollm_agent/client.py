@@ -59,14 +59,16 @@ def chat_with_mistral(messages, tools, model="mistral-medium-latest", **kwargs):
             )
     else:
         print("No tool calls found")
-        return completion
+        messages.append(completion.choices[0].message)
+        return messages
     completion = client.chat.completions.create(
         model=model,
         messages=messages,
         tools=tools,
     )
+    messages.append(completion.choices[0].message)
 
-    return completion
+    return messages
 
 
 def get_completion(prompt):
