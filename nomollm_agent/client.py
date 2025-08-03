@@ -1,8 +1,10 @@
-from openai import OpenAI
-import os
-from dotenv import load_dotenv
-from nomollm_agent.prompt.prompts import system_prompt
 import json
+import os
+
+from dotenv import load_dotenv
+from openai import OpenAI
+
+from nomollm_agent.prompt.prompts import system_prompt
 from nomollm_agent.tools import call_function
 
 load_dotenv()
@@ -26,12 +28,9 @@ def chat_with_mistral(messages, tools, model="mistral-medium-latest", **kwargs):
         **kwargs: Additional parameters like temperature, max_tokens, etc.
 
     Returns:
-        OpenAI ChatCompletion response object
+        List of messages including the model's response and any tool call results.
     """
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": messages},
-    ]
+
     completion = client.chat.completions.create(
         model=model, messages=messages, tools=tools, **kwargs
     )
@@ -72,7 +71,10 @@ def chat_with_mistral(messages, tools, model="mistral-medium-latest", **kwargs):
 
 
 def get_completion(prompt):
-    messages = [{"role": "user", "content": prompt}]
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": prompt},
+    ]
     response = chat_with_mistral(messages)
     return response.choices[0].message.content
 
